@@ -1,6 +1,6 @@
 import { async } from 'regenerator-runtime';
 import { TIMEOUT_SECONDS } from './config';
-import recipeView from './views/recipeView';
+// import recipeView from './views/recipeView';
 const timeout = function (s) {
   return new Promise(function (_, reject) {
     setTimeout(function () {
@@ -9,9 +9,32 @@ const timeout = function (s) {
   });
 };
 
+export const AJAX = async (url, uploadData = undefined) => {
+  const fetchPro = uploadData
+    ? fetch(url, {
+        method: 'POST',
+        headers: {
+          'Content-Type': 'application/json',
+        },
+        body: JSON.stringify(uploadData),
+      })
+    : fetch(url);
+
+  try {
+    const res = await Promise.race([fetchPro, timeout(TIMEOUT_SECONDS)]);
+    const data = await res.json();
+    // handling errors incase of errors
+    if (!res.ok) throw new Error(`${data.message} (${res.status})`);
+    return data;
+  } catch (error) {
+    // to handle it in the required component since error on async functions are also resolved
+    throw error;
+  }
+};
+/*
 export const getJson = async url => {
   try {
-    const res = await Promise.race([fetch(url), timeout(TIMEOUT_SECONDS)]);
+    const res = await Promise.race([, timeout(TIMEOUT_SECONDS)]);
     const data = await res.json();
     // handling errors incase of errors
     if (!res.ok) throw new Error(`${data.message} (${res.status})`);
@@ -22,6 +45,22 @@ export const getJson = async url => {
   }
 };
 
+export const sendJson = async (url, uploadData) => {
+  try {
+    const res = await Promise.race([
+      ,
+      timeout(TIMEOUT_SECONDS),
+    ]);
+    const data = await res.json();
+    // handling errors incase of errors
+    if (!res.ok) throw new Error(`${data.message} (${res.status})`);
+    return data;
+  } catch (error) {
+    // to handle it in the required component since error on async functions are also resolved
+    throw error;
+  }
+};
+*/
 // Sebastian — Teaching Assistant
 // Answer
 // 10 upvotes
